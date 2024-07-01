@@ -2,10 +2,12 @@
 
 from flask import Flask, jsonify, request, send_file, send_from_directory
 from flask_cors import CORS
+from dotenv import load_dotenv
 import main
 import os
 import requests
 
+load_dotenv()
 app = Flask(__name__, static_folder='out')
 CORS(app)
 """ CORS(app, origins=["https://containerwordsearch.pythonanywhere.com",
@@ -13,7 +15,7 @@ CORS(app)
                    "http://127.0.0.1:5000", 
                    "http://localhost:3000"]) """
 
-lt = main.create_letter_tree("containerwordsearch/english.txt") # containerwordsearch/
+lt = main.create_letter_tree("english.txt") # containerwordsearch/
 
 @app.route('/api/search', methods=['POST'])
 def search():
