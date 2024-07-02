@@ -2,6 +2,7 @@
 
 import FormComponent from '@/app/components/FormComponent';
 import Modal from '@/app/components/Modal';
+import Footer from '@/app/components/Footer';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image'
@@ -9,7 +10,6 @@ import { Suspense } from 'react'
 
 export default function Home() {
   const base_route = "https://containerwordsearch.pythonanywhere.com" // "http://127.0.0.1:5000";
-  const base_route_http = "http://containerwordsearch.pythonanywhere.com"
   const router = useRouter();
   const [prompt, setPrompt] = useState<string | null>(null);
   const [words, setWords] = useState<string[]>([]);
@@ -46,7 +46,7 @@ export default function Home() {
     setDefinition(null)
     setShowModal(true);
     try {
-      const response = await fetch(`${base_route_http}/api/definition?word=${word.toLowerCase()}`);
+      const response = await fetch(`${base_route}/api/definition?word=${word.toLowerCase()}`);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
@@ -151,6 +151,7 @@ export default function Home() {
         <button onClick={scroll} style={{ position: 'fixed', bottom: '20px', left: '50%', background: 'transparent', border: 'none', cursor: 'pointer' }}>
             <Image src={scrolled ? '/up.svg' : '/down.svg'} alt="" width={24} height={24} />
         </button>
+        <Footer />
       </div>
     </main>
   );

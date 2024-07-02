@@ -1,0 +1,24 @@
+.footer {
+    padding: 20px;
+    text-align: center;
+    width: 100%;
+    bottom: 0;
+  }
+  
+  .footer-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .footer-image {
+    width: 150px;
+    height: auto;
+    /* margin-right: 10px; */
+  }
+  
+  .footer-text {
+    font-size: 14px;
+    color: #333;
+  }
+  

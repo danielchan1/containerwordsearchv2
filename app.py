@@ -8,6 +8,8 @@ import os
 import requests
 
 load_dotenv()
+WORDNIK_API_KEY = os.getenv('WORDNIK_API_KEY', '')
+
 app = Flask(__name__, static_folder='out')
 CORS(app)
 """ CORS(app, origins=["https://containerwordsearch.pythonanywhere.com",
@@ -15,7 +17,7 @@ CORS(app)
                    "http://127.0.0.1:5000", 
                    "http://localhost:3000"]) """
 
-lt = main.create_letter_tree("english.txt") # containerwordsearch/
+lt = main.create_letter_tree("containerwordsearch/english.txt") # containerwordsearch/
 
 @app.route('/api/search', methods=['POST'])
 def search():
@@ -45,31 +47,42 @@ def get_definition():
         return jsonify({'definition': definition})
     except requests.exceptions.RequestException as e: # word not found in dictionaryapi
         # return jsonify({"Error": f"Word not found in dictionary API: {e}"}), 404 
-        url = "https://scripai.com/api/getGPT"
-        headers = {
-            'Content-Type': 'application/json',
-        }
-        payload = {
-            'prompt': {
-                'title': f'In less than 70 tokens, {word}',
-                'language': "English",
-                'tone': "Informative"
-            },
-            'slug': "definition"
-        }
-
         try:
-            response = requests.post(url, headers=headers, json=payload)
+            # https://developer.wordnik.com/docs
+            url = f'https://api.wordnik.com/v4/word.json/{word}/definitions?limit=1&includeRelated=false&useCanonical=true&includeTags=false&api_key={WORDNIK_API_KEY}'
+            response = requests.get(url)
             response.raise_for_status()
             data = response.json()
-            definition = data.get('result')
-            if definition:
-                return jsonify({'definition': definition})
-            else:
-                return jsonify({'definition': 'Error generating definition'})
-        except requests.exceptions.RequestException as error:
-            return jsonify({'definition': 'No definition found.'})
-        """ Error fetching resource: HTTPSConnectionPool(host='scripai.com', port=443): Max retries exceeded with url: /api/getGPT (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))) """
+            definition = data[0]['text']
+            return jsonify({'definition': definition})
+        except requests.exceptions.RequestException as e: # word not found in wordnikapi
+            """ Code only works locally. When hosted, Error fetching resource: HTTPSConnectionPool(host='scripai.com', port=443): 
+            Max retries exceeded with url: /api/getGPT (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))) """
+
+            url = "https://scripai.com/api/getGPT"
+            headers = {
+                'Content-Type': 'application/json',
+            }
+            payload = {
+                'prompt': {
+                    'title': f'In less than 70 tokens, {word}',
+                    'language': "English",
+                    'tone': "Informative"
+                },
+                'slug': "definition"
+            }
+
+            try:
+                response = requests.post(url, headers=headers, json=payload)
+                response.raise_for_status()
+                data = response.json()
+                definition = data.get('result')
+                if definition:
+                    return jsonify({'definition': definition})
+                else:
+                    return jsonify({'definition': 'Error generating definition'})
+            except requests.exceptions.RequestException as error:
+                return jsonify({'definition': 'No definition found.'})
 
 # Serve the index.html for the root route
 @app.route('/')

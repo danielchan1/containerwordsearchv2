@@ -26,6 +26,10 @@ body {
     rgb(var(--background-start-rgb));
 }
 
+footer {
+  margin-top: auto; /* Ensures footer stays at the bottom */
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
